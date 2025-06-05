@@ -1,0 +1,33 @@
+version: '3.9' # Specify the Docker Compose file format version
+
+services:
+  rabbitmq:
+    image: rabbitmq:management-alpine
+    tty: true
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq # <--- References undefined volume
+    environment:
+      RABBITMQ_DEFAULT_USER: "chickentaki"
+      RABBITMQ_DEFAULT_PASS: "chickentaki"
+    ports:
+      - "15672:15672" # Management UI
+      - "5672:5672"   # AMQP protocol
+
+  postgresql-db: # This is the service name. Your Spring Boot app will use this name if it's also in Docker.
+    image: postgres:16 # Use the same PostgreSQL image version
+    restart: always # Automatically restart the container if it stops
+    environment: # Environment variables for PostgreSQL configuration
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres # IMPORTANT: Change this to your strong password!
+      POSTGRES_DB: chickentaki_db
+    ports:
+      - "5432:5432" # Map host port 5432 to container port 5432
+    volumes:
+      # This creates a named volume to persist your database data
+      # Data will be stored on your host machine even if the container is removed
+      - pgdata:/var/lib/postgresql/data
+
+# Define named volumes for data persistence
+volumes:
+  pgdata:
+  rabbitmq_data:
